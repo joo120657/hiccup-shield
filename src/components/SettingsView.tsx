@@ -81,8 +81,8 @@ export default function SettingsView({ currentName, onUpdateName, onResetData, o
         <section>
           <p className="text-[10px] text-white/30 uppercase font-bold mb-4 tracking-widest">데이터 관리</p>
           <div className="space-y-4">
-            {/* PWA Install Button (Conditional) */}
-            {deferredPrompt && (
+            {/* PWA Install Button (Automatic or Manual) */}
+            {deferredPrompt ? (
               <div className="p-5 rounded-3xl bg-gradient-to-br from-[var(--color-sky-blue)]/20 to-[var(--color-mint-green)]/20 border border-white/10 flex flex-col gap-3">
                 <div>
                   <h4 className="font-bold text-sm">🛡️ 공식 앱 설치하기</h4>
@@ -95,8 +95,29 @@ export default function SettingsView({ currentName, onUpdateName, onResetData, o
                   onClick={handleInstallClick}
                   className="w-full py-3 rounded-xl bg-white text-[var(--color-deep-navy)] font-black text-xs shadow-lg active:scale-95 transition-all"
                 >
-                  지금 설치하기 (무료)
+                  지금 바로 설치
                 </button>
+              </div>
+            ) : (
+              <div className="p-5 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs">📱</span>
+                  <h4 className="font-bold text-sm text-white/80">앱 설치 방법</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex gap-2 items-start">
+                    <span className="w-4 h-4 rounded-full bg-[var(--color-sky-blue)] text-[10px] flex items-center justify-center font-bold">1</span>
+                    <p className="text-[10px] text-white/60 leading-relaxed">
+                      아이폰(Safari): 하단 <span className="text-white font-bold">[공유 버튼 ↑]</span> 클릭
+                    </p>
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <span className="w-4 h-4 rounded-full bg-[var(--color-sky-blue)] text-[10px] flex items-center justify-center font-bold">2</span>
+                    <p className="text-[10px] text-white/60 leading-relaxed">
+                      메뉴에서 <span className="text-white font-bold">[홈 화면에 추가]</span> 클릭
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
