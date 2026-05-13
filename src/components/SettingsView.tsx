@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { playSound } from "@/lib/audio";
 
 interface SettingsViewProps {
   currentName: string;
@@ -12,6 +13,37 @@ interface SettingsViewProps {
 export default function SettingsView({ currentName, onUpdateName, onResetData, onClose }: SettingsViewProps) {
   const [newName, setNewName] = useState(currentName);
   const [showConfirmReset, setShowConfirmReset] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    playSound("click");
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+      setDeferredPrompt(null);
+    }
+  };
 
   const handleSave = () => {
     if (newName.trim()) {
@@ -49,6 +81,25 @@ export default function SettingsView({ currentName, onUpdateName, onResetData, o
         <section>
           <p className="text-[10px] text-white/30 uppercase font-bold mb-4 tracking-widest">데이터 관리</p>
           <div className="space-y-4">
+            {/* PWA Install Button (Conditional) */}
+            {deferredPrompt && (
+              <div className="p-5 rounded-3xl bg-gradient-to-br from-[var(--color-sky-blue)]/20 to-[var(--color-mint-green)]/20 border border-white/10 flex flex-col gap-3">
+                <div>
+                  <h4 className="font-bold text-sm">🛡️ 공식 앱 설치하기</h4>
+                  <p className="text-[10px] text-white/50 leading-relaxed">
+                    홈 화면에 추가하면 오프라인에서도 작동하며,<br />
+                    매번 마이크 권한을 묻지 않아 훨씬 편리합니다.
+                  </p>
+                </div>
+                <button 
+                  onClick={handleInstallClick}
+                  className="w-full py-3 rounded-xl bg-white text-[var(--color-deep-navy)] font-black text-xs shadow-lg active:scale-95 transition-all"
+                >
+                  지금 설치하기 (무료)
+                </button>
+              </div>
+            )}
+
             <button 
               onClick={() => setShowConfirmReset(true)}
               className="w-full glass-panel p-6 flex items-center justify-between group hover:bg-red-500/10 transition-colors"
