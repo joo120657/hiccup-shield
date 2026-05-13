@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { playSound } from "@/lib/audio";
 
 interface SipViewProps {
@@ -16,14 +16,13 @@ export default function SipView({ onComplete, onCancel }: SipViewProps) {
 
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Use beta (pitch) for tilt detection
       // beta ranges from -180 to 180. 0 is flat on back, 90 is standing up.
-      // We want the user to tilt the phone towards them (like drinking).
-      const pitch = event.beta || 0;
-      setTilt(pitch);
+      // Bowing 90 degrees while looking at the screen means the phone becomes horizontal (beta near 0).
+      const beta = event.beta || 0;
+      setTilt(beta);
       
-      // If tilted more than 75 degrees, activate
-      if (pitch > 75) {
+      // If tilted to horizontal (approx 0 degrees), activate
+      if (Math.abs(beta) < 25) {
         if (!isActivated) {
           playSound("progress");
         }

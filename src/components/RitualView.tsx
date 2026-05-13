@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { playSound } from "@/lib/audio";
 
 interface RitualViewProps {
@@ -17,6 +17,8 @@ export default function RitualView({ userName, onComplete, onCancel }: RitualVie
   const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(true);
+  
+  const recognitionRef = useRef<any>(null);
 
   const directions: Direction[] = ["east", "west", "south", "north"];
   const directionLabels = {
@@ -38,16 +40,14 @@ export default function RitualView({ userName, onComplete, onCancel }: RitualVie
     }
   }, [step]);
 
-  // Voice Recognition Fallback / Simulation
+  // Voice Recognition Persistence
   useEffect(() => {
-    let recognition: any = null;
-
-    if (step >= 1 && step <= 4) {
+    if (step >= 1 && step <= 4 && !recognitionRef.current) {
       // @ts-ignore
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         try {
-          recognition = new SpeechRecognition();
+          const recognition = new SpeechRecognition();
           recognition.continuous = true;
           recognition.interimResults = true;
           recognition.lang = "ko-KR";
@@ -56,32 +56,32 @@ export default function RitualView({ userName, onComplete, onCancel }: RitualVie
             setIsListening(true);
             setError(null);
           };
+
           recognition.onresult = (event: any) => {
             const current = event.results[event.results.length - 1][0].transcript.toLowerCase();
             setTranscript(current);
-            
-            const target = directionLabels[directions[step - 1]];
-            const targetKr = target.kr.replace("!", "");
-            const targetEn = target.en.replace("!", "").toLowerCase();
-            
-            if (current.includes(targetKr) || current.includes(targetEn)) {
-              setTimeout(nextStep, 500);
-            }
           };
+
           recognition.onerror = (event: any) => {
             console.error("Speech Recognition Error:", event.error);
-            setIsListening(false);
             if (event.error === 'not-allowed') {
               setError("마이크 권한이 필요합니다. 브라우저 설정을 확인해주세요.");
-            } else {
+            } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
               setError(`인식 오류: ${event.error}`);
             }
           };
-          recognition.onend = () => setIsListening(false);
+
+          recognition.onend = () => {
+            setIsListening(false);
+            // Auto-restart only if we haven't stopped it intentionally
+            if (step >= 1 && step <= 4 && recognitionRef.current) {
+              try { recognition.start(); } catch(e) {}
+            }
+          };
 
           recognition.start();
+          recognitionRef.current = recognition;
         } catch (e) {
-          console.error("Failed to start recognition:", e);
           setIsSupported(false);
         }
       } else {
@@ -89,10 +89,33 @@ export default function RitualView({ userName, onComplete, onCancel }: RitualVie
       }
     }
 
+    // Stop recognition when finished or canceled
+    if ((step === 0 || step === 5) && recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+
     return () => {
-      if (recognition) recognition.stop();
+      // Don't stop unless we are really leaving or done
+      if (step === 5 && recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
     };
-  }, [step, nextStep]);
+  }, [step]);
+
+  // Handle result checking separately to avoid re-initializing recognition
+  useEffect(() => {
+    if (step >= 1 && step <= 4 && transcript) {
+      const target = directionLabels[directions[step - 1]];
+      const targetKr = target.kr.replace("!", "");
+      const targetEn = target.en.replace("!", "").toLowerCase();
+      
+      if (transcript.includes(targetKr) || transcript.includes(targetEn)) {
+        nextStep();
+      }
+    }
+  }, [transcript, step, nextStep]);
 
   return (
     <div className="absolute inset-0 bg-[var(--color-deep-navy)] flex flex-col p-6 animate-in fade-in duration-300">

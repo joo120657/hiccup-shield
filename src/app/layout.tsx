@@ -47,6 +47,17 @@ export default function RootLayout({
     <html lang="ko" className={`${inter.variable}`}>
       <body className="min-h-[100dvh] flex flex-col bg-[var(--color-deep-navy)] text-white overflow-hidden selection:bg-[var(--color-sky-blue)] selection:text-white">
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
