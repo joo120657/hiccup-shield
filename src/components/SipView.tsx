@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { playSound } from "@/lib/audio";
 
 interface SipViewProps {
   onComplete: (success: boolean) => void;
@@ -23,6 +24,9 @@ export default function SipView({ onComplete, onCancel }: SipViewProps) {
       
       // If tilted more than 75 degrees, activate
       if (pitch > 75) {
+        if (!isActivated) {
+          playSound("progress");
+        }
         setIsActivated(true);
       } else {
         if (isActivated) {
@@ -42,7 +46,7 @@ export default function SipView({ onComplete, onCancel }: SipViewProps) {
     }
 
     return () => window.removeEventListener("deviceorientation", handleOrientation);
-  }, []);
+  }, [isActivated]);
 
   const requestPermission = async () => {
     // @ts-ignore
@@ -118,7 +122,10 @@ export default function SipView({ onComplete, onCancel }: SipViewProps) {
           {hasCompletedAction && (
             <>
               <button 
-                onClick={() => onComplete(true)}
+                onClick={() => {
+                  playSound("success");
+                  onComplete(true);
+                }}
                 className="w-full py-5 rounded-[24px] bg-[var(--color-mint-green)] text-[var(--color-deep-navy)] font-black text-lg shadow-lg shadow-[var(--color-mint-green)]/20 active:scale-95 transition-all"
               >
                 성공! 멈췄어요

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { playSound } from "@/lib/audio";
 
 interface RitualViewProps {
   userName: string;
@@ -26,9 +27,14 @@ export default function RitualView({ userName, onComplete, onCancel }: RitualVie
   };
 
   const nextStep = useCallback(() => {
-    if (step < 5) {
+    if (step < 4) {
+      playSound("progress");
       setStep(step + 1);
+      setTranscript("");
       if (window.navigator.vibrate) window.navigator.vibrate(100);
+    } else {
+      playSound("success");
+      setStep(5);
     }
   }, [step]);
 

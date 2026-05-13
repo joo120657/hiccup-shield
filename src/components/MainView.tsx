@@ -8,6 +8,7 @@ import RitualView from "./RitualView";
 import BadgePopup from "./BadgePopup";
 import SettingsView from "./SettingsView";
 import { saveHistory, Badge, resetAllData } from "@/lib/storage";
+import { playSound } from "@/lib/audio";
 
 interface MainViewProps {
   userName: string;
@@ -30,6 +31,7 @@ export default function MainView({ userName, onUpdateName }: MainViewProps) {
       });
 
       if (newUnlocked.length > 0) {
+        playSound("success");
         setUnlockedBadges(newUnlocked);
       }
     }
@@ -73,7 +75,10 @@ export default function MainView({ userName, onUpdateName }: MainViewProps) {
             </div>
           </div>
           <button 
-            onClick={() => setShowSettings(true)}
+            onClick={() => {
+              playSound("click");
+              setShowSettings(true);
+            }}
             className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl hover:bg-white/10 transition-colors"
           >
             ⚙️
@@ -83,7 +88,10 @@ export default function MainView({ userName, onUpdateName }: MainViewProps) {
       <div className="flex-1 flex flex-col gap-4">
         {/* Button 1: Vacuum Hold */}
         <button 
-          onClick={() => setActiveMode("vacuum")}
+          onClick={() => {
+            playSound("click");
+            setActiveMode("vacuum");
+          }}
           className="flex-1 rounded-[32px] bg-[var(--color-sky-blue)]/10 border border-[var(--color-sky-blue)]/20 p-6 flex flex-col justify-end text-left relative overflow-hidden group transition-all hover:bg-[var(--color-sky-blue)]/20 active:scale-[0.98]"
         >
           <div className="absolute top-6 right-6 w-14 h-14 rounded-2xl bg-[var(--color-sky-blue)]/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
@@ -101,7 +109,10 @@ export default function MainView({ userName, onUpdateName }: MainViewProps) {
 
         {/* Button 2: Silent Sip */}
         <button 
-          onClick={() => setActiveMode("sip")}
+          onClick={() => {
+            playSound("click");
+            setActiveMode("sip");
+          }}
           className="flex-1 rounded-[32px] bg-[var(--color-mint-green)]/10 border border-[var(--color-mint-green)]/20 p-6 flex flex-col justify-end text-left relative overflow-hidden group transition-all hover:bg-[var(--color-mint-green)]/20 active:scale-[0.98]"
         >
           <div className="absolute top-6 right-6 w-14 h-14 rounded-2xl bg-[var(--color-mint-green)]/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
@@ -119,7 +130,10 @@ export default function MainView({ userName, onUpdateName }: MainViewProps) {
 
         {/* Button 3: Master Ritual */}
         <button 
-          onClick={() => setActiveMode("ritual")}
+          onClick={() => {
+            playSound("click");
+            setActiveMode("ritual");
+          }}
           className="flex-1 rounded-[32px] bg-[var(--color-vibrant-orange)]/10 border border-[var(--color-vibrant-orange)]/20 p-6 flex flex-col justify-end text-left relative overflow-hidden group transition-all hover:bg-[var(--color-vibrant-orange)]/20 active:scale-[0.98]"
         >
           <div className="absolute top-6 right-6 w-14 h-14 rounded-2xl bg-[var(--color-vibrant-orange)]/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
@@ -138,7 +152,10 @@ export default function MainView({ userName, onUpdateName }: MainViewProps) {
 
       {/* Bottom Sheet Handle */}
       <button 
-        onClick={() => setShowReport(true)}
+        onClick={() => {
+          playSound("click");
+          setShowReport(true);
+        }}
         className="absolute bottom-0 left-0 right-0 h-20 flex flex-col items-center justify-center pb-4 bg-gradient-to-t from-[var(--color-deep-navy)] to-transparent hover:from-white/5 transition-all group"
       >
         <div className="w-12 h-1.5 bg-white/20 rounded-full mb-2 group-hover:bg-white/40 transition-colors"></div>

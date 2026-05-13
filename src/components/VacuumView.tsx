@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { playSound } from "@/lib/audio";
 
 interface VacuumViewProps {
   onComplete: (success: boolean) => void;
@@ -22,6 +23,7 @@ export default function VacuumView({ onComplete, onCancel }: VacuumViewProps) {
       } else {
         setPhase("hold");
         setTimeLeft(15);
+        playSound("progress");
         // Haptic feedback simulation
         if (window.navigator.vibrate) window.navigator.vibrate(200);
       }
@@ -35,6 +37,7 @@ export default function VacuumView({ onComplete, onCancel }: VacuumViewProps) {
       } else {
         setPhase("exhale");
         setTimeLeft(5);
+        playSound("progress");
         if (window.navigator.vibrate) window.navigator.vibrate(200);
       }
     } else if (phase === "exhale") {
@@ -42,6 +45,7 @@ export default function VacuumView({ onComplete, onCancel }: VacuumViewProps) {
         timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       } else {
         setPhase("done");
+        playSound("success");
       }
     }
 
