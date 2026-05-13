@@ -106,10 +106,11 @@ export default function SipView({ onComplete, onCancel }: SipViewProps) {
         <div className="w-full max-w-[200px] h-2 bg-white/10 rounded-full overflow-hidden mb-12 relative">
           <div 
             className={`absolute top-0 bottom-0 transition-all duration-300 ${isActivated ? 'bg-black' : 'bg-[var(--color-mint-green)]'}`}
-            style={{ left: '0', width: `${Math.min(Math.max((tilt / 90) * 100, 0), 100)}%` }}
+            style={{ 
+              left: '0', 
+              width: `${Math.min(Math.max(((90 - Math.abs(tilt)) / 90) * 100, 0), 100)}%` 
+            }}
           />
-          {/* 90 degree mark */}
-          <div className="absolute top-0 bottom-0 left-[83%] w-0.5 bg-white/30" />
         </div>
 
         {/* Fallback/Action Buttons */}
